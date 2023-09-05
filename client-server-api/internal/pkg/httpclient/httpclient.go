@@ -3,6 +3,7 @@ package httpclient
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -36,6 +37,10 @@ func (c HttpClient) Get(endpoint string, responseObj interface{}) error {
 
 	if err != nil {
 		return err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return errors.New(fmt.Sprintf("unexpected status code [%d]", resp.StatusCode))
 	}
 
 	defer resp.Body.Close()
