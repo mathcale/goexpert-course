@@ -13,6 +13,13 @@ type HttpClient struct {
 	Timeout time.Duration
 }
 
+func NewHttpClient(baseURL string, timeout time.Duration) *HttpClient {
+	return &HttpClient{
+		BaseURL: baseURL,
+		Timeout: timeout,
+	}
+}
+
 func (c HttpClient) Get(endpoint string, responseObj interface{}) error {
 	httpCtx, cancel := context.WithTimeout(context.Background(), c.Timeout)
 	defer cancel()

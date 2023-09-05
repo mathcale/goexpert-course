@@ -9,21 +9,20 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 
-	"github.com/mathcale/goexpert-course/client-server-api/models"
-	"github.com/mathcale/goexpert-course/client-server-api/pkg/httpclient"
-	"github.com/mathcale/goexpert-course/client-server-api/pkg/persistence"
+	"github.com/mathcale/goexpert-course/client-server-api/internal/models"
+	"github.com/mathcale/goexpert-course/client-server-api/internal/pkg/httpclient"
+	"github.com/mathcale/goexpert-course/client-server-api/internal/pkg/persistence"
 )
 
 var db *persistence.Database
 
 func main() {
+	log.SetPrefix("[SERVER] ")
 	dbConn, err := sql.Open("sqlite3", "./rates.db")
 
 	if err != nil {
 		panic(err)
 	}
-
-	log.SetPrefix("[SERVER] ")
 
 	db = persistence.NewDatabase(dbConn)
 
@@ -34,10 +33,7 @@ func main() {
 }
 
 func getUSDBRLExchangeRateHandler(w http.ResponseWriter, r *http.Request) {
-	c := httpclient.HttpClient{
-		BaseURL: "https://economia.awesomeapi.com.br",
-		Timeout: 200 * time.Millisecond,
-	}
+	c := httpclient.NewHttpClient("https://economia.awesomeapi.com.br", 200*time.Millisecond)
 
 	var rateResp models.ExchangeRateResponse
 

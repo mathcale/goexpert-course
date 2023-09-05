@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/mathcale/goexpert-course/client-server-api/models"
+	"github.com/mathcale/goexpert-course/client-server-api/internal/models"
 )
 
 type Database struct {
