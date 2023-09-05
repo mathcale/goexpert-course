@@ -3,7 +3,7 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -23,11 +23,13 @@ func main() {
 		panic(err)
 	}
 
+	log.SetPrefix("[SERVER] ")
+
 	db = persistence.NewDatabase(dbConn)
 
 	http.HandleFunc("/cotacao", getUSDBRLExchangeRateHandler)
 
-	fmt.Println("Server running on port 8080")
+	log.Println("Server running on port 8080")
 	http.ListenAndServe(":8080", nil)
 }
 
@@ -39,35 +41,21 @@ func getUSDBRLExchangeRateHandler(w http.ResponseWriter, r *http.Request) {
 
 	var rateResp models.ExchangeRateResponse
 
+	log.Println("Fetching exchange rate from API...")
+
 	if err := c.Get("/json/last/USD-BRL", &rateResp); err != nil {
+		log.Printf("Error fetching rate: %s", err.Error())
+
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
 		return
 	}
 
-	stmt, err := db.Connection.Prepare("INSERT INTO rates (code, code_in, name, high, low, var_bid, pct_change, bid, ask, timestamp, create_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+	log.Println("Saving rate on database...")
 
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
-		return
-	}
+	if err := db.CreateRate(rateResp.USDBRL); err != nil {
+		log.Printf("Error saving rate: %s", err.Error())
 
-	_, err = stmt.Exec(
-		rateResp.USDBRL.Code,
-		rateResp.USDBRL.CodeIn,
-		rateResp.USDBRL.Name,
-		rateResp.USDBRL.High,
-		rateResp.USDBRL.Low,
-		rateResp.USDBRL.VarBid,
-		rateResp.USDBRL.PctChange,
-		rateResp.USDBRL.Bid,
-		rateResp.USDBRL.Ask,
-		rateResp.USDBRL.Timestamp,
-		rateResp.USDBRL.CreateDate,
-	)
-
-	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
 		return
