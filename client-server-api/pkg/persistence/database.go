@@ -3,11 +3,11 @@ package persistence
 import "database/sql"
 
 type Database struct {
-	Instance *sql.DB
+	Connection *sql.DB
 }
 
-func NewDatabase(instance *sql.DB) Database {
-	return Database{
-		Instance: instance,
+func NewDatabase(connection *sql.DB) *Database {
+	return &Database{
+		Connection: connection,
 	}
 }

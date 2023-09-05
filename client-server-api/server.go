@@ -14,16 +14,16 @@ import (
 	"github.com/mathcale/goexpert-course/client-server-api/pkg/persistence"
 )
 
-var db persistence.Database
+var db *persistence.Database
 
 func main() {
-	dbInstance, err := sql.Open("sqlite3", "rates.db")
+	dbConn, err := sql.Open("sqlite3", "./rates.db")
 
 	if err != nil {
 		panic(err)
 	}
 
-	db = persistence.NewDatabase(dbInstance)
+	db = persistence.NewDatabase(dbConn)
 
 	http.HandleFunc("/cotacao", getUSDBRLExchangeRateHandler)
 
@@ -45,7 +45,7 @@ func getUSDBRLExchangeRateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stmt, err := db.Instance.Prepare("INSERT INTO rates (code, code_in, name, high, low, var_bid, pct_change, bid, ask, timestamp, create_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+	stmt, err := db.Connection.Prepare("INSERT INTO rates (code, code_in, name, high, low, var_bid, pct_change, bid, ask, timestamp, create_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
