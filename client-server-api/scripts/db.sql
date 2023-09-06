@@ -1,4 +1,4 @@
-create table rates (
+create table if not exists rates (
     id          integer constraint rates_pk primary key autoincrement,
     code        varchar(255),
     code_in     varchar(255),
