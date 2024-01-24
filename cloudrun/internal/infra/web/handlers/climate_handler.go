@@ -18,18 +18,18 @@ type WebClimateHandlerInterface interface {
 type WebClimateHandler struct {
 	ResponseHandler      responsehandler.WebResponseHandlerInterface
 	FindByZipCodeUseCase location.FindByZipCodeUseCaseInterface
-	FindByCitiNameUC     climate.FindByCityNameUseCaseInterface
+	FindByCityNameUC     climate.FindByCityNameUseCaseInterface
 }
 
 func NewWebClimateHandler(
 	rh responsehandler.WebResponseHandlerInterface,
 	findByZipCodeUC location.FindByZipCodeUseCaseInterface,
-	findByCitiNameUC climate.FindByCityNameUseCaseInterface,
+	findByCityNameUC climate.FindByCityNameUseCaseInterface,
 ) *WebClimateHandler {
 	return &WebClimateHandler{
 		ResponseHandler:      rh,
 		FindByZipCodeUseCase: findByZipCodeUC,
-		FindByCitiNameUC:     findByCitiNameUC,
+		FindByCityNameUC:     findByCityNameUC,
 	}
 }
 
@@ -54,7 +54,7 @@ func (h *WebClimateHandler) GetTemperaturesByZipCode(w http.ResponseWriter, r *h
 		h.ResponseHandler.RespondWithError(w, http.StatusInternalServerError, err)
 	}
 
-	climate, err := h.FindByCitiNameUC.Execute(location.City)
+	climate, err := h.FindByCityNameUC.Execute(location.City)
 	if err != nil {
 		h.ResponseHandler.RespondWithError(w, http.StatusInternalServerError, err)
 	}
