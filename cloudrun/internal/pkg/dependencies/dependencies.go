@@ -20,10 +20,11 @@ type AppDependencies struct {
 	WebServer        web.WebServerInterface
 
 	// Handlers
-	WebClimateHandler *handlers.WebClimateHandler
+	WebClimateHandler handlers.WebClimateHandlerInterface
 
 	// Use-cases
-	FindByZipCodeUseCase *location.FindByZipCodeUseCaseInterface
+	FindByZipCodeUseCase  location.FindByZipCodeUseCaseInterface
+	FindByCityNameUseCase climate.FindByCityNameUseCaseInterface
 }
 
 func Build(config *config.Conf) AppDependencies {
@@ -49,5 +50,10 @@ func Build(config *config.Conf) AppDependencies {
 		ResponseHandler:  responseHandler,
 		ViaCepHttpClient: viaCepAPIHttpClient,
 		WebServer:        webServer,
+
+		WebClimateHandler: webClimateHandler,
+
+		FindByZipCodeUseCase:  findByZipCodeUseCase,
+		FindByCityNameUseCase: findByCityNameUseCase,
 	}
 }
