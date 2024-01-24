@@ -2,13 +2,17 @@ package config
 
 import "github.com/spf13/viper"
 
-type conf struct {
-	LogLevel      string `mapstructure:"LOG_LEVEL"`
-	WebServerPort string `mapstructure:"WEB_SERVER_PORT"`
+type Conf struct {
+	LogLevel          string `mapstructure:"LOG_LEVEL"`
+	WebServerPort     string `mapstructure:"WEB_SERVER_PORT"`
+	HttpClientTimeout int    `mapstructure:"HTTP_CLIENT_TIMEOUT_MS"`
+	ViaCepApiBaseUrl  string `mapstructure:"VIACEP_API_BASE_URL"`
+	WeatherApiBaseUrl string `mapstructure:"WEATHER_API_BASE_URL"`
+	WeatherApiKey     string `mapstructure:"WEATHER_API_KEY"`
 }
 
-func LoadConfig(path string) (*conf, error) {
-	var c *conf
+func LoadConfig(path string) (*Conf, error) {
+	var c *Conf
 
 	viper.SetConfigName("app_config")
 	viper.SetConfigType("env")

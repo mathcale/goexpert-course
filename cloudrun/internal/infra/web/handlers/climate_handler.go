@@ -7,15 +7,29 @@ import (
 
 	"github.com/mathcale/goexpert-course/cloudrun/internal/entities/dto"
 	"github.com/mathcale/goexpert-course/cloudrun/internal/pkg/responsehandler"
+	"github.com/mathcale/goexpert-course/cloudrun/internal/usecases/climate"
+	"github.com/mathcale/goexpert-course/cloudrun/internal/usecases/location"
 )
 
-type WebClimateHandler struct {
-	ResponseHandler responsehandler.WebResponseHandlerInterface
+type WebClimateHandlerInterface interface {
+	GetTemperaturesByZipCode(w http.ResponseWriter, r *http.Request)
 }
 
-func NewWebClimateHandler(rh responsehandler.WebResponseHandlerInterface) *WebClimateHandler {
+type WebClimateHandler struct {
+	ResponseHandler      responsehandler.WebResponseHandlerInterface
+	FindByZipCodeUseCase location.FindByZipCodeUseCaseInterface
+	FindByCitiNameUC     climate.FindByCityNameUseCaseInterface
+}
+
+func NewWebClimateHandler(
+	rh responsehandler.WebResponseHandlerInterface,
+	findByZipCodeUC location.FindByZipCodeUseCaseInterface,
+	findByCitiNameUC climate.FindByCityNameUseCaseInterface,
+) *WebClimateHandler {
 	return &WebClimateHandler{
-		ResponseHandler: rh,
+		ResponseHandler:      rh,
+		FindByZipCodeUseCase: findByZipCodeUC,
+		FindByCitiNameUC:     findByCitiNameUC,
 	}
 }
 
@@ -35,11 +49,22 @@ func (h *WebClimateHandler) GetTemperaturesByZipCode(w http.ResponseWriter, r *h
 		return
 	}
 
-	// TODO: call use-cases here
+	location, err := h.FindByZipCodeUseCase.Execute(zipStr)
+	if err != nil {
+		h.ResponseHandler.RespondWithError(w, http.StatusInternalServerError, err)
+	}
+
+	climate, err := h.FindByCitiNameUC.Execute(location.City)
+	if err != nil {
+		h.ResponseHandler.RespondWithError(w, http.StatusInternalServerError, err)
+	}
+
+	fahrenheit := climate.Current.TempC*1.8 + 32
+	kelvin := climate.Current.TempC + 273.15
 
 	h.ResponseHandler.Respond(w, http.StatusOK, dto.GetTemperaturesByZipCodeOutput{
-		Celcius:    0,
-		Fahrenheit: 0,
-		Kelvin:     0,
+		Celcius:    float32(climate.Current.TempC),
+		Fahrenheit: float32(fahrenheit),
+		Kelvin:     float32(kelvin),
 	})
 }

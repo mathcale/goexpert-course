@@ -8,6 +8,10 @@ import (
 	"github.com/rs/zerolog"
 )
 
+type WebServerInterface interface {
+	Start()
+}
+
 type RouteHandler struct {
 	Path        string
 	Method      string

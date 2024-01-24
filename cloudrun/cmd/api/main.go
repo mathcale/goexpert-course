@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/mathcale/goexpert-course/cloudrun/config"
-	"github.com/mathcale/goexpert-course/cloudrun/internal/infra/web"
+	"github.com/mathcale/goexpert-course/cloudrun/internal/pkg/dependencies"
 )
 
 func main() {
@@ -11,21 +11,6 @@ func main() {
 		panic(configsErr)
 	}
 
-	logger := NewLogger(configs.LogLevel)
-	logger.Setup()
-
-	webServer := NewWebServer(configs.WebServerPort, logger.GetLogger(), createWebHandlers())
-	webServer.Start()
-}
-
-func createWebHandlers() []web.RouteHandler {
-	webClimateHandler := NewWebClimateHandler()
-
-	return []web.RouteHandler{
-		{
-			Path:        "/",
-			Method:      "GET",
-			HandlerFunc: webClimateHandler.GetTemperaturesByZipCode,
-		},
-	}
+	deps := dependencies.Build(configs)
+	deps.WebServer.Start()
 }

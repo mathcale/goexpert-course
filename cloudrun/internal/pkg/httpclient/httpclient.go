@@ -9,6 +9,10 @@ import (
 	"time"
 )
 
+type HttpClientInterface interface {
+	Get(endpoint string, responseObj interface{}) error
+}
+
 type HttpClient struct {
 	BaseURL string
 	Timeout time.Duration
@@ -39,7 +43,7 @@ func (c HttpClient) Get(endpoint string, responseObj interface{}) error {
 		return err
 	}
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode > 399 {
 		return errors.New(fmt.Sprintf("unexpected status code [%d]", resp.StatusCode))
 	}
 
