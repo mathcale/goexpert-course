@@ -34,7 +34,7 @@ func (uc *FindByZipCodeUseCase) Execute(zipCode string) (*entities.Location, err
 	uc.Logger.Info().Msgf("[FindByZipCode] Calling API with zipcode [%s]", zipCode)
 
 	if err := uc.HttpClient.Get(fmt.Sprintf("/%s/json/", zipCode), &location); err != nil {
-		return nil, err
+		return nil, err.Error
 	}
 
 	uc.Logger.Debug().Msgf("[FindByZipCode] Got location [%+v]", location)

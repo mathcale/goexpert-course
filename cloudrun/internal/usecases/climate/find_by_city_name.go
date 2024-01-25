@@ -38,7 +38,7 @@ func (uc *FindByCityNameUseCase) Execute(city string) (*entities.Climate, error)
 	uc.Logger.Info().Msgf("[FindByCityName] Calling API with city name [%s]", city)
 
 	if err := uc.HttpClient.Get(fmt.Sprintf("/v1/current.json?key=%s&q=%s&aqi=no", uc.APIKey, url.QueryEscape(city)), &climate); err != nil {
-		return nil, err
+		return nil, err.Error
 	}
 
 	uc.Logger.Debug().Msgf("[FindByCityName] Got climate data [%+v]", climate)

@@ -3,14 +3,18 @@ package httpclient
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"time"
 )
 
 type HttpClientInterface interface {
-	Get(endpoint string, responseObj interface{}) error
+	Get(endpoint string, responseObj interface{}) *HttpClientError
+}
+
+type HttpClientError struct {
+	Error      error
+	StatusCode *int
 }
 
 type HttpClient struct {
@@ -25,7 +29,7 @@ func NewHttpClient(baseURL string, timeout time.Duration) *HttpClient {
 	}
 }
 
-func (c HttpClient) Get(endpoint string, responseObj interface{}) error {
+func (c HttpClient) Get(endpoint string, responseObj interface{}) *HttpClientError {
 	httpCtx, cancel := context.WithTimeout(context.Background(), c.Timeout)
 	defer cancel()
 
@@ -33,24 +37,28 @@ func (c HttpClient) Get(endpoint string, responseObj interface{}) error {
 	req, err := http.NewRequestWithContext(httpCtx, "GET", path, nil)
 
 	if err != nil {
-		return err
+		return &HttpClientError{
+			Error: err,
+		}
 	}
 
 	client := &http.Client{}
+
 	resp, err := client.Do(req)
-
 	if err != nil {
-		return err
-	}
-
-	if resp.StatusCode > 399 {
-		return errors.New(fmt.Sprintf("unexpected status code [%d]", resp.StatusCode))
+		return &HttpClientError{
+			Error:      err,
+			StatusCode: &resp.StatusCode,
+		}
 	}
 
 	defer resp.Body.Close()
 
 	if err := json.NewDecoder(resp.Body).Decode(&responseObj); err != nil {
-		return err
+		return &HttpClientError{
+			Error:      err,
+			StatusCode: &resp.StatusCode,
+		}
 	}
 
 	return nil
