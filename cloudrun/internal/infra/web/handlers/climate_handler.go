@@ -16,9 +16,9 @@ type WebClimateHandlerInterface interface {
 }
 
 type WebClimateHandler struct {
-	ResponseHandler      responsehandler.WebResponseHandlerInterface
-	FindByZipCodeUseCase location.FindByZipCodeUseCaseInterface
-	FindByCityNameUC     climate.FindByCityNameUseCaseInterface
+	ResponseHandler              responsehandler.WebResponseHandlerInterface
+	FindLocationByZipCodeUseCase location.FindByZipCodeUseCaseInterface
+	FindClimateByCityNameUseCase climate.FindByCityNameUseCaseInterface
 }
 
 func NewWebClimateHandler(
@@ -27,9 +27,9 @@ func NewWebClimateHandler(
 	findByCityNameUC climate.FindByCityNameUseCaseInterface,
 ) *WebClimateHandler {
 	return &WebClimateHandler{
-		ResponseHandler:      rh,
-		FindByZipCodeUseCase: findByZipCodeUC,
-		FindByCityNameUC:     findByCityNameUC,
+		ResponseHandler:              rh,
+		FindLocationByZipCodeUseCase: findByZipCodeUC,
+		FindClimateByCityNameUseCase: findByCityNameUC,
 	}
 }
 
@@ -49,12 +49,17 @@ func (h *WebClimateHandler) GetTemperaturesByZipCode(w http.ResponseWriter, r *h
 		return
 	}
 
-	location, err := h.FindByZipCodeUseCase.Execute(zipStr)
+	location, err := h.FindLocationByZipCodeUseCase.Execute(zipStr)
 	if err != nil {
 		h.ResponseHandler.RespondWithError(w, http.StatusInternalServerError, err)
 	}
 
-	climate, err := h.FindByCityNameUC.Execute(location.City)
+	if location.City == "" {
+		h.ResponseHandler.RespondWithError(w, http.StatusNotFound, errors.New("zipcode not found"))
+		return
+	}
+
+	climate, err := h.FindClimateByCityNameUseCase.Execute(location.City)
 	if err != nil {
 		h.ResponseHandler.RespondWithError(w, http.StatusInternalServerError, err)
 	}
