@@ -37,15 +37,8 @@ func (h *WebClimateHandler) GetTemperaturesByZipCode(w http.ResponseWriter, r *h
 	qs := r.URL.Query()
 	zipStr := qs.Get("zipcode")
 
-	if zipStr == "" {
-		h.ResponseHandler.RespondWithError(w, http.StatusUnprocessableEntity, errors.New("invalid zipcode"))
-		return
-	}
-
-	matched, err := regexp.MatchString(`\d{5}[\-]?\d{3}`, zipStr)
-
-	if !matched || err != nil {
-		h.ResponseHandler.RespondWithError(w, http.StatusUnprocessableEntity, errors.New("invalid zipcode"))
+	if err := validateInput(zipStr); err != nil {
+		h.ResponseHandler.RespondWithError(w, http.StatusUnprocessableEntity, err)
 		return
 	}
 
@@ -53,7 +46,6 @@ func (h *WebClimateHandler) GetTemperaturesByZipCode(w http.ResponseWriter, r *h
 	if err != nil {
 		h.ResponseHandler.RespondWithError(w, http.StatusInternalServerError, err)
 	}
-
 	if location.City == "" {
 		h.ResponseHandler.RespondWithError(w, http.StatusNotFound, errors.New("zipcode not found"))
 		return
@@ -64,12 +56,31 @@ func (h *WebClimateHandler) GetTemperaturesByZipCode(w http.ResponseWriter, r *h
 		h.ResponseHandler.RespondWithError(w, http.StatusInternalServerError, err)
 	}
 
-	fahrenheit := climate.Current.TempC*1.8 + 32
-	kelvin := climate.Current.TempC + 273.15
+	fahrenheit, kelvin := convertTemperature(climate.Current.TempC)
 
 	h.ResponseHandler.Respond(w, http.StatusOK, dto.GetTemperaturesByZipCodeOutput{
 		Celcius:    float32(climate.Current.TempC),
 		Fahrenheit: float32(fahrenheit),
 		Kelvin:     float32(kelvin),
 	})
+}
+
+func validateInput(zipcode string) error {
+	if zipcode == "" {
+		return errors.New("invalid zipcode")
+	}
+
+	matched, err := regexp.MatchString(`\d{5}[\-]?\d{3}`, zipcode)
+	if !matched || err != nil {
+		return errors.New("invalid zipcode")
+	}
+
+	return nil
+}
+
+func convertTemperature(celcius float64) (float64, float64) {
+	fahrenheit := celcius*1.8 + 32
+	kelvin := celcius + 273.15
+
+	return fahrenheit, kelvin
 }
