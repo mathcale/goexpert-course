@@ -12,5 +12,6 @@ test:
 
 install-deps:
 	go install github.com/cosmtrek/air@latest
+	go mod tidy
 
 setup: install-deps
