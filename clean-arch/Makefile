@@ -1,7 +1,7 @@
 .PHONY: build
 include .env
 
-latform := $(shell uname -s | tr '[:upper:]' '[:lower:]')
+platform := $(shell uname -s | tr '[:upper:]' '[:lower:]')
 
 build:
 	go build -o ./bin/ordersystem ./cmd/ordersystem/main.go ./cmd/ordersystem/wire_gen.go
@@ -22,6 +22,7 @@ install-deps:
 	go install github.com/cosmtrek/air@latest
 	go install github.com/google/wire/cmd/wire@latest
 	curl -L https://github.com/golang-migrate/migrate/releases/download/v4.16.2/migrate.$(platform)-amd64.tar.gz | tar xvz migrate && sudo mv migrate /usr/local/bin
+	go mod tidy
 
 update-di:
 	wire ./cmd/ordersystem
