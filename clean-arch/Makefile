@@ -24,6 +24,6 @@ install-deps:
 	curl -L https://github.com/golang-migrate/migrate/releases/download/v4.16.2/migrate.$(platform)-amd64.tar.gz | tar xvz migrate && sudo mv migrate /usr/local/bin
 
 update-di:
-	wire ./cmd/api
+	wire ./cmd/ordersystem
 
 setup: install-deps
