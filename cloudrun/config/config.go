@@ -4,7 +4,7 @@ import "github.com/spf13/viper"
 
 type Conf struct {
 	LogLevel          string `mapstructure:"LOG_LEVEL"`
-	WebServerPort     string `mapstructure:"WEB_SERVER_PORT"`
+	WebServerPort     int    `mapstructure:"WEB_SERVER_PORT"`
 	HttpClientTimeout int    `mapstructure:"HTTP_CLIENT_TIMEOUT_MS"`
 	ViaCepApiBaseUrl  string `mapstructure:"VIACEP_API_BASE_URL"`
 	WeatherApiBaseUrl string `mapstructure:"WEATHER_API_BASE_URL"`
