@@ -3,6 +3,42 @@
 
 Aplicação web em Go que receba um CEP, identifica a cidade e retorna o clima atual em Celsius, Fahrenheit e Kelvin.
 
+## Executando em PROD (Cloud Run)
+
+A aplicação está disponível para acesso no serviço Google Cloud Run e pode ser acessado seguindo os seguintes parâmetros:
+
+- **Endpoint:** https://goexpert-lab-cloudrun-challenge-mj2kexbmja-uc.a.run.app
+- **Método:** GET
+- **Query Params:**
+  - **zipcode:** CEP a ser consultado
+
+Exemplo de requisição com `curl`:
+
+```bash
+curl -X GET https://goexpert-lab-cloudrun-challenge-mj2kexbmja-uc.a.run.app/\?zipcode\=01001000
+```
+
+## Executando localmente (dev)
+
+### Requisitos
+
+1. Clone o repositório;
+2. Execute o comando `cp .env.example .env` para criar o arquivo de variáveis de ambiente;
+3. Edite o novo arquivo `.env` e insira sua chave de acesso à API do [WeatherAPI](https://www.weatherapi.com/) à variável `WEATHER_API_KEY`;
+
+### Via Docker
+
+1. Execute o comando `docker compose up` para realizar o build do container e iniciar a aplicação na porta declarada no arquivo `.env`;
+
+### Via Makefile
+
+1. Execute o comando `make setup` para instalar as dependências do projeto;
+2. Execute o comando `make run` para executar o projeto, que subirá um servidor HTTP na porta 8000;
+
+### Testes
+
+Para executar os testes automatizados, execute o comando `make test`.
+
 ## Documentação do endpoint
 
 ### Request
@@ -41,20 +77,3 @@ Aplicação web em Go que receba um CEP, identifica a cidade e retorna o clima a
         "message": "invalid zipcode"
       }
       ```
-
-## Executando no Cloud Run
-
-- **Endpoint:** https://goexpert-lab-cloudrun-challenge-mj2kexbmja-uc.a.run.app
-- **Método:** GET
-- **Query Params:**
-  - **zipcode:** CEP a ser consultado
-
-## Executando localmente
-
-1. Clone o repositório;
-2. Execute o comando `cp .env.example .env` para criar o arquivo de variáveis de ambiente;
-3. Edite o novo arquivo `.env` e insira sua chave de acesso à API do [WeatherAPI](https://www.weatherapi.com/) à variável `WEATHER_API_KEY`;
-4. Execute o comando `make setup` para instalar as dependências do projeto;
-5. Execute o comando `make run` para executar o projeto, que subirá um servidor HTTP na porta 8000;
-
-Para executar os testes automatizados, execute o comando `make test`.
