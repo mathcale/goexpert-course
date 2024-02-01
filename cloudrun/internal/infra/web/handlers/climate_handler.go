@@ -70,7 +70,7 @@ func validateInput(zipcode string) error {
 		return errors.New("invalid zipcode")
 	}
 
-	matched, err := regexp.MatchString(`\d{5}[\-]?\d{3}`, zipcode)
+	matched, err := regexp.MatchString(`\b\d{5}[\-]?\d{3}\b`, zipcode)
 	if !matched || err != nil {
 		return errors.New("invalid zipcode")
 	}

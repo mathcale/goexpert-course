@@ -83,6 +83,25 @@ func (s *ClimateHandlerTestSuite) TestGetTemperaturesByZipCode() {
 		s.Equal(expectedResponse, strings.TrimSuffix(string(data), "\n"))
 	})
 
+	s.Run("should return error when zipcode is empty", func() {
+		defer s.clearMocks()
+
+		zipCode := "011530000"
+		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/?zipcode=%s", zipCode), nil)
+		w := httptest.NewRecorder()
+
+		s.WebClimateHandler.GetTemperaturesByZipCode(w, req)
+
+		res := w.Result()
+		defer res.Body.Close()
+
+		data, _ := io.ReadAll(res.Body)
+		expectedResponse := "{\"message\":\"invalid zipcode\"}"
+
+		s.Equal(http.StatusUnprocessableEntity, res.StatusCode)
+		s.Equal(expectedResponse, strings.TrimSuffix(string(data), "\n"))
+	})
+
 	s.Run("should return error when zipcode is invalid", func() {
 		defer s.clearMocks()
 
