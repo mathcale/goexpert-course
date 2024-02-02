@@ -1,12 +1,24 @@
 version: "3.8"
 
 services:
-  api:
+  api_dev:
+    env_file:
+      - path: ./.env
+        required: true
+    image: mathcale/goexpert-lab-cloudrun-challenge
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${WEB_SERVER_PORT}:${WEB_SERVER_PORT}"
+
+  api_prod:
     env_file:
       - path: ./.env
         required: true
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
+    image: mathcale/goexpert-lab-cloudrun-challenge
     ports:
       - "${WEB_SERVER_PORT}:${WEB_SERVER_PORT}"

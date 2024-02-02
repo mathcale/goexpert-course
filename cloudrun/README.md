@@ -28,7 +28,7 @@ curl -X GET https://goexpert-lab-cloudrun-challenge-mj2kexbmja-uc.a.run.app/\?zi
 
 ### Via Docker
 
-1. Execute o comando `docker compose up` para realizar o build do container e iniciar a aplicação na porta declarada no arquivo `.env`;
+1. Execute o comando `docker compose up api_dev` para realizar o build do container e iniciar a aplicação na porta declarada no arquivo `.env`;
 
 ### Via Makefile
 
