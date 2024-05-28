@@ -9,6 +9,8 @@ services:
       dockerfile: Dockerfile.input
     ports:
       - "${INPUT_SERVICE_WEB_SERVER_PORT}:${INPUT_SERVICE_WEB_SERVER_PORT}"
+    depends_on:
+      - collector
 
   api_orchestrator:
     env_file:
@@ -20,6 +22,8 @@ services:
       dockerfile: Dockerfile.orchestrator
     ports:
       - "${ORCHESTRATOR_SERVICE_WEB_SERVER_PORT}:${ORCHESTRATOR_SERVICE_WEB_SERVER_PORT}"
+    depends_on:
+      - collector
 
   collector:
     image: otel/opentelemetry-collector:latest
@@ -31,6 +35,8 @@ services:
       - "8888:8888" # Prometheus metrics exposed by the collector
       - "8889:8889" # Prometheus exporter metrics
       - "4317:4317" # OTLP gRPC receiver
+    depends_on:
+      - zipkin
 
   zipkin:
     image: openzipkin/zipkin:latest
