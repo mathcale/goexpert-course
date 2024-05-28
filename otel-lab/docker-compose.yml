@@ -1,7 +1,7 @@
 services:
   api_input:
     env_file:
-      - path: ./.env
+      - path: ./.env.docker
         required: true
     image: mathcale/goexpert-lab-otel-challenge-input
     build:
@@ -12,7 +12,7 @@ services:
 
   api_orchestrator:
     env_file:
-      - path: ./.env
+      - path: ./.env.docker
         required: true
     image: mathcale/goexpert-lab-otel-challenge-orchestrator
     build:

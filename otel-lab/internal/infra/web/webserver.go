@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -12,6 +13,7 @@ import (
 
 type WebServerInterface interface {
 	Start()
+	Shutdown(ctx context.Context) error
 }
 
 type RouteHandler struct {
@@ -21,6 +23,7 @@ type RouteHandler struct {
 }
 
 type WebServer struct {
+	Server        *http.Server
 	Router        chi.Router
 	Handlers      []RouteHandler
 	WebServerPort int
@@ -29,6 +32,7 @@ type WebServer struct {
 
 func NewWebServer(serverPort int, logger zerolog.Logger, handlers []RouteHandler) *WebServer {
 	return &WebServer{
+		Server:        nil,
 		Router:        chi.NewRouter(),
 		Handlers:      handlers,
 		WebServerPort: serverPort,
@@ -49,5 +53,18 @@ func (s *WebServer) Start() {
 
 	s.Logger.Info().Msgf("Starting server on port %d", s.WebServerPort)
 
-	http.ListenAndServe(fmt.Sprintf(":%d", s.WebServerPort), s.Router)
+	s.Server = &http.Server{
+		Addr:    fmt.Sprintf(":%d", s.WebServerPort),
+		Handler: s.Router,
+	}
+
+	go func() {
+		if err := s.Server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			s.Logger.Fatal().Err(err).Msg("Failed to start webserver")
+		}
+	}()
+}
+
+func (s *WebServer) Shutdown(ctx context.Context) error {
+	return s.Server.Shutdown(ctx)
 }

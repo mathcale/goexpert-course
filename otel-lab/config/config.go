@@ -11,6 +11,7 @@ type Conf struct {
 	WeatherApiBaseUrl                string `mapstructure:"WEATHER_API_BASE_URL"`
 	WeatherApiKey                    string `mapstructure:"WEATHER_API_KEY"`
 	OrchestratorServiceHost          string `mapstructure:"ORCHESTRATOR_SERVICE_HOST"`
+	OtelCollectorURL                 string `mapstructure:"OTEL_COLLECTOR_URL"`
 }
 
 func LoadConfig(path string) (*Conf, error) {

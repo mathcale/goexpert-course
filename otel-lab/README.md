@@ -8,12 +8,17 @@ Instrumentação de serviços com OpenTelemetry e Zipkin
 ### Requisitos
 
 1. Clone o repositório;
-2. Execute o comando `cp .env.example .env` para criar o arquivo de variáveis de ambiente;
-3. Edite o novo arquivo `.env` e insira sua chave de acesso à API do [WeatherAPI](https://www.weatherapi.com/) à variável `WEATHER_API_KEY`;
+2. Execute o comando `make env` para criar os arquivos de variáveis de ambiente;
+3. Edite os novos arquivo `.env` e `.env.docker` e insira sua chave de acesso à API do [WeatherAPI](https://www.weatherapi.com/) à variável `WEATHER_API_KEY`;
 
 ### Via Docker
 
-1. Execute o comando `docker compose up api_input api_orchestrator` para realizar o build do container e iniciar as aplicações nas portas declaradas no arquivo `.env` (8000 e 8001, por padrão);
+1. Execute o comando `docker compose up` para realizar o build dos containers e iniciar as aplicações nas portas declaradas no arquivo `.env.docker` (8000 e 8001, por padrão);
+
+### Via Go
+
+1. Execute `docker compose up -d collector zipkin` para iniciar o serviço de coleta de traces e o Zipkin;
+2. Execute o comando `make run-input` e `make run-orchestrator` para iniciar a aplicação em modo de desenvolvimento;
 
 ### Testes
 

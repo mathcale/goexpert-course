@@ -4,6 +4,7 @@ bin/
 **/testdata/
 
 **/.env
+**/.env.docker
 coverage.tmp
 coverage.txt
 profile.out

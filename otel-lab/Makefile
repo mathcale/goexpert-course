@@ -1,4 +1,4 @@
-.PHONY: build run-input run-orchestrator test install-deps setup
+.PHONY: build run-input run-orchestrator test tidy env
 
 build:
 	@go build -o ./bin/input ./cmd/input/main.go
@@ -15,3 +15,7 @@ test:
 
 tidy:
 	@go mod tidy
+
+env:
+	@cp .env.example .env
+	@cp .env .env.docker

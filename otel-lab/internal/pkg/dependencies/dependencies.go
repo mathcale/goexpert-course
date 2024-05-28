@@ -3,6 +3,9 @@ package dependencies
 import (
 	"time"
 
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/trace"
+
 	"github.com/mathcale/goexpert-course/otel-lab/config"
 	"github.com/mathcale/goexpert-course/otel-lab/internal/infra/web"
 	"github.com/mathcale/goexpert-course/otel-lab/internal/infra/web/handlers"
@@ -15,21 +18,25 @@ import (
 )
 
 type InputServiceDependencies struct {
-	WebServer web.WebServerInterface
+	ServiceName string
+	WebServer   web.WebServerInterface
 }
 
 type OrchestratorServiceDependencies struct {
-	WebServer web.WebServerInterface
+	ServiceName string
+	WebServer   web.WebServerInterface
 }
 
 type sharedDependencies struct {
 	ResponseHandler   responsehandler.WebResponseHandler
 	Logger            logger.Logger
 	HttpClientTimeout time.Duration
+	Tracer            trace.Tracer
 }
 
 func ResolveInputServiceDependencies(config *config.Conf) InputServiceDependencies {
-	sharedDeps := resolveSharedDependencies(config)
+	serviceName := "input-service"
+	sharedDeps := resolveSharedDependencies(config, serviceName)
 
 	httpClient := httpclient.NewHttpClient(config.OrchestratorServiceHost, sharedDeps.HttpClientTimeout)
 
@@ -41,12 +48,14 @@ func ResolveInputServiceDependencies(config *config.Conf) InputServiceDependenci
 	webServer := web.NewWebServer(config.InputServiceWebServerPort, sharedDeps.Logger.GetLogger(), webRouter.Build())
 
 	return InputServiceDependencies{
-		WebServer: webServer,
+		ServiceName: serviceName,
+		WebServer:   webServer,
 	}
 }
 
 func ResolveOrchestratorServiceDependencies(config *config.Conf) OrchestratorServiceDependencies {
-	sharedDeps := resolveSharedDependencies(config)
+	serviceName := "orchestrator-service"
+	sharedDeps := resolveSharedDependencies(config, serviceName)
 
 	viaCepAPIHttpClient := httpclient.NewHttpClient(config.ViaCepApiBaseUrl, sharedDeps.HttpClientTimeout)
 	weatherAPIHttpClient := httpclient.NewHttpClient(config.WeatherApiBaseUrl, sharedDeps.HttpClientTimeout)
@@ -60,11 +69,12 @@ func ResolveOrchestratorServiceDependencies(config *config.Conf) OrchestratorSer
 	webServer := web.NewWebServer(config.OrchestratorServiceWebServerPort, sharedDeps.Logger.GetLogger(), webRouter.Build())
 
 	return OrchestratorServiceDependencies{
-		WebServer: webServer,
+		ServiceName: serviceName,
+		WebServer:   webServer,
 	}
 }
 
-func resolveSharedDependencies(config *config.Conf) sharedDependencies {
+func resolveSharedDependencies(config *config.Conf, serviceName string) sharedDependencies {
 	logger := logger.NewLogger(config.LogLevel)
 	logger.Setup()
 
@@ -72,9 +82,12 @@ func resolveSharedDependencies(config *config.Conf) sharedDependencies {
 
 	httpClientTimeout := time.Duration(config.HttpClientTimeout) * time.Millisecond
 
+	tracer := otel.Tracer(serviceName)
+
 	return sharedDependencies{
 		ResponseHandler:   *responseHandler,
 		Logger:            *logger,
 		HttpClientTimeout: httpClientTimeout,
+		Tracer:            tracer,
 	}
 }
