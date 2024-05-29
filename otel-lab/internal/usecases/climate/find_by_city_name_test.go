@@ -1,6 +1,7 @@
 package climate
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"testing"
@@ -40,12 +41,13 @@ func (s *FindByCityNameUseCaseTestSuite) TestFindByCityNameUseCase() {
 	s.Run("should return climate", func() {
 		defer s.clearMocks()
 
+		ctx := context.Background()
 		city := "Rio de Janeiro"
 		endpoint := fmt.Sprintf("/v1/current.json?key=%s&q=%s&aqi=no", API_KEY, url.QueryEscape(city))
 
-		s.HttpClientMock.On("Get", endpoint, &entities.Climate{}).Return(nil)
+		s.HttpClientMock.On("Get", ctx, endpoint, &entities.Climate{}).Return(nil)
 
-		result, err := s.FindByCityNameUseCase.Execute(city)
+		result, err := s.FindByCityNameUseCase.Execute(ctx, city)
 
 		s.Nil(err)
 		s.NotNil(result)
@@ -54,14 +56,15 @@ func (s *FindByCityNameUseCaseTestSuite) TestFindByCityNameUseCase() {
 	s.Run("should return error when http client returns error", func() {
 		defer s.clearMocks()
 
+		ctx := context.Background()
 		city := "Rio de Janeiro"
 		endpoint := fmt.Sprintf("/v1/current.json?key=%s&q=%s&aqi=no", API_KEY, url.QueryEscape(city))
 
-		s.HttpClientMock.On("Get", endpoint, &entities.Climate{}).Return(&httpclient.HttpClientError{
+		s.HttpClientMock.On("Get", ctx, endpoint, &entities.Climate{}).Return(&httpclient.HttpClientError{
 			Error: fmt.Errorf("any-error"),
 		})
 
-		result, err := s.FindByCityNameUseCase.Execute(city)
+		result, err := s.FindByCityNameUseCase.Execute(ctx, city)
 
 		s.Error(err)
 		s.Nil(result)

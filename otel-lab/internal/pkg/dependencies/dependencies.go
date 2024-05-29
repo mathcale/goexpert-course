@@ -42,7 +42,7 @@ func ResolveInputServiceDependencies(config *config.Conf) InputServiceDependenci
 
 	inputUC := input.NewInputUseCase(httpClient, sharedDeps.Logger.GetLogger())
 
-	webInputHandler := handlers.NewWebInputHandler(&sharedDeps.ResponseHandler, inputUC)
+	webInputHandler := handlers.NewWebInputHandler(&sharedDeps.ResponseHandler, inputUC, sharedDeps.Tracer)
 
 	webRouter := web.NewInputWebRouter(webInputHandler)
 	webServer := web.NewWebServer(config.InputServiceWebServerPort, sharedDeps.Logger.GetLogger(), webRouter.Build())
@@ -63,7 +63,7 @@ func ResolveOrchestratorServiceDependencies(config *config.Conf) OrchestratorSer
 	findByZipCodeUseCase := location.NewFindByZipCodeUseCase(viaCepAPIHttpClient, sharedDeps.Logger.GetLogger())
 	findByCityNameUseCase := climate.NewFindByCityNameUseCase(weatherAPIHttpClient, sharedDeps.Logger.GetLogger(), config.WeatherApiKey)
 
-	webClimateHandler := handlers.NewWebClimateHandler(&sharedDeps.ResponseHandler, findByZipCodeUseCase, findByCityNameUseCase)
+	webClimateHandler := handlers.NewWebClimateHandler(&sharedDeps.ResponseHandler, findByZipCodeUseCase, findByCityNameUseCase, sharedDeps.Tracer)
 
 	webRouter := web.NewOrchestratorWebRouter(webClimateHandler)
 	webServer := web.NewWebServer(config.OrchestratorServiceWebServerPort, sharedDeps.Logger.GetLogger(), webRouter.Build())

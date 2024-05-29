@@ -1,6 +1,7 @@
 package input
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/rs/zerolog"
@@ -10,7 +11,7 @@ import (
 )
 
 type InputUseCaseInterface interface {
-	Execute(input dto.InputUCInput) (*dto.GetTemperaturesByZipCodeOutput, error)
+	Execute(ctx context.Context, input dto.InputUCInput) (*dto.GetTemperaturesByZipCodeOutput, error)
 }
 
 type InputUseCase struct {
@@ -28,7 +29,7 @@ func NewInputUseCase(
 	}
 }
 
-func (uc *InputUseCase) Execute(input dto.InputUCInput) (*dto.GetTemperaturesByZipCodeOutput, error) {
+func (uc *InputUseCase) Execute(ctx context.Context, input dto.InputUCInput) (*dto.GetTemperaturesByZipCodeOutput, error) {
 	if err := input.Validate(); err != nil {
 		return nil, err
 	}
@@ -37,7 +38,7 @@ func (uc *InputUseCase) Execute(input dto.InputUCInput) (*dto.GetTemperaturesByZ
 
 	var response dto.GetTemperaturesByZipCodeOutput
 
-	if err := uc.HttpClient.Get(fmt.Sprintf("/?zipcode=%s", input.Zipcode), &response); err != nil {
+	if err := uc.HttpClient.Get(ctx, fmt.Sprintf("/?zipcode=%s", input.Zipcode), &response); err != nil {
 		return nil, err.Error
 	}
 

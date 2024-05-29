@@ -12,6 +12,7 @@ import (
 	"github.com/mathcale/goexpert-course/otel-lab/internal/pkg/mocks"
 	"github.com/mathcale/goexpert-course/otel-lab/internal/pkg/responsehandler"
 	"github.com/stretchr/testify/suite"
+	"go.opentelemetry.io/otel"
 )
 
 type ClimateHandlerTestSuite struct {
@@ -30,6 +31,7 @@ func (s *ClimateHandlerTestSuite) SetupTest() {
 	findLocationByZipCodeUseCaseMock := new(mocks.FindByZipCodeUseCaseMock)
 	findClimateByCityNameUseCaseMock := new(mocks.FindByCityNameUseCaseMock)
 	responseHandler := responsehandler.NewWebResponseHandler()
+	tracer := otel.Tracer("climate-test")
 
 	s.FindLocationByZipCodeUseCaseMock = findLocationByZipCodeUseCaseMock
 	s.FindClimateByCityNameUseCaseMock = findClimateByCityNameUseCaseMock
@@ -39,6 +41,7 @@ func (s *ClimateHandlerTestSuite) SetupTest() {
 		responseHandler,
 		findLocationByZipCodeUseCaseMock,
 		findClimateByCityNameUseCaseMock,
+		tracer,
 	)
 }
 

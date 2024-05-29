@@ -1,6 +1,7 @@
 package location
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -39,12 +40,13 @@ func (s *FindByZipCodeUseCaseTestSuite) TestFindByZipCodeUseCase() {
 	s.Run("should return location", func() {
 		defer s.clearMocks()
 
+		ctx := context.Background()
 		zipCode := "22021-001"
 		endpoint := fmt.Sprintf("/%s/json/", zipCode)
 
 		s.HttpClientMock.On("Get", endpoint, &entities.Location{}).Return(nil)
 
-		result, err := s.FindByZipCodeUseCase.Execute(zipCode)
+		result, err := s.FindByZipCodeUseCase.Execute(ctx, zipCode)
 
 		s.Nil(err)
 		s.NotNil(result)
@@ -53,6 +55,7 @@ func (s *FindByZipCodeUseCaseTestSuite) TestFindByZipCodeUseCase() {
 	s.Run("should return error when http client returns error", func() {
 		defer s.clearMocks()
 
+		ctx := context.Background()
 		zipCode := "22021-001"
 		endpoint := fmt.Sprintf("/%s/json/", zipCode)
 
@@ -60,7 +63,7 @@ func (s *FindByZipCodeUseCaseTestSuite) TestFindByZipCodeUseCase() {
 			Error: fmt.Errorf("any-error"),
 		})
 
-		result, err := s.FindByZipCodeUseCase.Execute(zipCode)
+		result, err := s.FindByZipCodeUseCase.Execute(ctx, zipCode)
 
 		s.Error(err)
 		s.Nil(result)

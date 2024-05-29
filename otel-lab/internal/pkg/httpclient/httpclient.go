@@ -9,7 +9,7 @@ import (
 )
 
 type HttpClientInterface interface {
-	Get(endpoint string, responseObj interface{}) *HttpClientError
+	Get(ctx context.Context, endpoint string, responseObj interface{}) *HttpClientError
 }
 
 type HttpClientError struct {
@@ -29,13 +29,9 @@ func NewHttpClient(baseURL string, timeout time.Duration) *HttpClient {
 	}
 }
 
-func (c HttpClient) Get(endpoint string, responseObj interface{}) *HttpClientError {
-	httpCtx, cancel := context.WithTimeout(context.Background(), c.Timeout)
-	defer cancel()
-
+func (c HttpClient) Get(ctx context.Context, endpoint string, responseObj interface{}) *HttpClientError {
 	path := fmt.Sprintf("%s%s", c.BaseURL, endpoint)
-	req, err := http.NewRequestWithContext(httpCtx, "GET", path, nil)
-
+	req, err := http.NewRequestWithContext(ctx, "GET", path, nil)
 	if err != nil {
 		return &HttpClientError{
 			Error: err,

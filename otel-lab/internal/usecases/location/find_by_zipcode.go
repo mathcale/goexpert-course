@@ -1,6 +1,7 @@
 package location
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/rs/zerolog"
@@ -10,7 +11,7 @@ import (
 )
 
 type FindByZipCodeUseCaseInterface interface {
-	Execute(zipCode string) (*entities.Location, error)
+	Execute(ctx context.Context, zipCode string) (*entities.Location, error)
 }
 
 type FindByZipCodeUseCase struct {
@@ -28,12 +29,12 @@ func NewFindByZipCodeUseCase(
 	}
 }
 
-func (uc *FindByZipCodeUseCase) Execute(zipCode string) (*entities.Location, error) {
+func (uc *FindByZipCodeUseCase) Execute(ctx context.Context, zipCode string) (*entities.Location, error) {
 	var location entities.Location
 
 	uc.Logger.Info().Msgf("[FindByZipCode] Calling API with zipcode [%s]", zipCode)
 
-	if err := uc.HttpClient.Get(fmt.Sprintf("/%s/json/", zipCode), &location); err != nil {
+	if err := uc.HttpClient.Get(ctx, fmt.Sprintf("/%s/json/", zipCode), &location); err != nil {
 		return nil, err.Error
 	}
 

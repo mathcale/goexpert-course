@@ -14,6 +14,8 @@ Instrumentação de serviços com OpenTelemetry e Zipkin
 ### Via Docker
 
 1. Execute o comando `docker compose up` para realizar o build dos containers e iniciar as aplicações nas portas declaradas no arquivo `.env.docker` (8000 e 8001, por padrão);
+2. Faça uma requisição POST para `http://localhost:8000` com o body descrito na seção "Documentação dos endpoints" abaixo para invocar o serviço de temperatura;
+3. Em seu navegador, acesse `http://localhost:9411` para visualizar o dashboard do Zipkin e verificar os traces gerados na aba "Find a trace".
 
 ### Via Go
 
@@ -28,7 +30,9 @@ Para executar os testes automatizados, execute o comando `make test`.
 
 ### Input API
 
-WIP
+| Endpoint | Descrição                                   | Método  | Body                  |
+|----------|-------------------------------------------  |-------- |-----------------------|
+| /        | Invoca o serviço de temperatura para um CEP | POST    | `{ "cep": "29902555" }` |
 
 ### Orchestrator API
 
@@ -36,7 +40,7 @@ WIP
 
 | Endpoint | Descrição                                 | Método |  Parâmetro |
 |----------|-------------------------------------------|--------|------------|
-| /        | Calcula a temperatura atual em uma cidade | GET    | zipcode    |
+| /        | Calcula a temperatura atual em uma cidade | GET    | `zipcode`    |
 
 #### Response
 

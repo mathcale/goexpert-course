@@ -1,6 +1,7 @@
 package climate
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 
@@ -11,7 +12,7 @@ import (
 )
 
 type FindByCityNameUseCaseInterface interface {
-	Execute(city string) (*entities.Climate, error)
+	Execute(ctx context.Context, city string) (*entities.Climate, error)
 }
 
 type FindByCityNameUseCase struct {
@@ -32,12 +33,12 @@ func NewFindByCityNameUseCase(
 	}
 }
 
-func (uc *FindByCityNameUseCase) Execute(city string) (*entities.Climate, error) {
+func (uc *FindByCityNameUseCase) Execute(ctx context.Context, city string) (*entities.Climate, error) {
 	var climate entities.Climate
 
 	uc.Logger.Info().Msgf("[FindByCityName] Calling API with city name [%s]", city)
 
-	if err := uc.HttpClient.Get(fmt.Sprintf("/v1/current.json?key=%s&q=%s&aqi=no", uc.APIKey, url.QueryEscape(city)), &climate); err != nil {
+	if err := uc.HttpClient.Get(ctx, fmt.Sprintf("/v1/current.json?key=%s&q=%s&aqi=no", uc.APIKey, url.QueryEscape(city)), &climate); err != nil {
 		return nil, err.Error
 	}
 
