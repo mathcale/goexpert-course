@@ -42,10 +42,15 @@ func (c HttpClient) Get(ctx context.Context, endpoint string, responseObj interf
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return &HttpClientError{
-			Error:      err,
-			StatusCode: &resp.StatusCode,
+		errResp := &HttpClientError{
+			Error: err,
 		}
+
+		if resp != nil {
+			errResp.StatusCode = &resp.StatusCode
+		}
+
+		return errResp
 	}
 
 	defer resp.Body.Close()
