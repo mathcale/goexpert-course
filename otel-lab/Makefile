@@ -18,4 +18,4 @@ tidy:
 
 env:
 	@cp .env.example .env
-	@cp .env .env.docker
+	@cp .env.docker.example .env.docker
