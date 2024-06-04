@@ -10,6 +10,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 
 	"github.com/mathcale/goexpert-course/otel-lab/internal/entities/dto"
+	"github.com/mathcale/goexpert-course/otel-lab/internal/pkg/customerrors"
 	"github.com/mathcale/goexpert-course/otel-lab/internal/pkg/responsehandler"
 	"github.com/mathcale/goexpert-course/otel-lab/internal/usecases/input"
 )
@@ -46,9 +47,7 @@ func (h *WebInputHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	defer span.End()
 
 	if err := json.NewDecoder(r.Body).Decode(&dto); err != nil {
-		span.SetStatus(codes.Error, "invalid input")
-		span.RecordError(err)
-		span.End()
+		recordSpan(span, err, "error decoding request body")
 
 		h.ResponseHandler.RespondWithError(w, http.StatusBadRequest, err)
 		return
@@ -58,13 +57,31 @@ func (h *WebInputHandler) Handle(w http.ResponseWriter, r *http.Request) {
 
 	input, err := h.InputUseCase.Execute(ctx, dto)
 	if err != nil {
-		span.SetStatus(codes.Error, "internal error")
-		span.RecordError(err)
-		span.End()
+		switch err.(type) {
+		case *customerrors.NotFoundError:
+			recordSpan(span, err, "not found")
 
-		h.ResponseHandler.RespondWithError(w, http.StatusInternalServerError, err)
-		return
+			h.ResponseHandler.RespondWithError(w, http.StatusNotFound, err)
+			return
+		case *customerrors.ValidationError:
+			recordSpan(span, err, "invalid zipcode")
+
+			h.ResponseHandler.RespondWithError(w, http.StatusUnprocessableEntity, err)
+			return
+		case *customerrors.UnknownError:
+		default:
+			recordSpan(span, err, "error getting location")
+
+			h.ResponseHandler.RespondWithError(w, http.StatusInternalServerError, err)
+			return
+		}
 	}
 
 	h.ResponseHandler.Respond(w, http.StatusOK, input)
+}
+
+func recordSpan(span trace.Span, err error, description string) {
+	span.SetStatus(codes.Error, description)
+	span.RecordError(err)
+	span.End()
 }

@@ -3,10 +3,12 @@ package location
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	"github.com/rs/zerolog"
 
 	"github.com/mathcale/goexpert-course/otel-lab/internal/entities"
+	"github.com/mathcale/goexpert-course/otel-lab/internal/pkg/customerrors"
 	"github.com/mathcale/goexpert-course/otel-lab/internal/pkg/httpclient"
 )
 
@@ -35,7 +37,23 @@ func (uc *FindByZipCodeUseCase) Execute(ctx context.Context, zipCode string) (*e
 	uc.Logger.Info().Msgf("[FindByZipCode] Calling API with zipcode [%s]", zipCode)
 
 	if err := uc.HttpClient.Get(ctx, fmt.Sprintf("/%s/json/", zipCode), &location); err != nil {
-		return nil, err.Error
+		if *err.StatusCode == http.StatusNotFound {
+			return nil, &customerrors.NotFoundError{
+				Err:     err.Error,
+				Message: "can not find zipcode",
+				Tags: map[string]interface{}{
+					"zipCode": zipCode,
+				},
+			}
+		}
+
+		return nil, &customerrors.UnknownError{
+			Err:     err.Error,
+			Message: "Unknown error getting location",
+			Tags: map[string]interface{}{
+				"zipCode": zipCode,
+			},
+		}
 	}
 
 	uc.Logger.Debug().Msgf("[FindByZipCode] Got location [%+v]", location)

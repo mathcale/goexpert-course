@@ -96,6 +96,7 @@ func (h *WebClimateHandler) GetTemperaturesByZipCode(w http.ResponseWriter, r *h
 	fahrenheit, kelvin := convertTemperature(climate.Current.TempC)
 
 	h.ResponseHandler.Respond(w, http.StatusOK, dto.GetTemperaturesByZipCodeOutput{
+		City:       location.City,
 		Celcius:    float32(climate.Current.TempC),
 		Fahrenheit: float32(fahrenheit),
 		Kelvin:     float32(kelvin),

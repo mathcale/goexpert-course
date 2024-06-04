@@ -1,6 +1,10 @@
 package dto
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/mathcale/goexpert-course/otel-lab/internal/pkg/customerrors"
+)
 
 type InputUCInput struct {
 	Zipcode string `json:"cep"`
@@ -8,7 +12,12 @@ type InputUCInput struct {
 
 func (i InputUCInput) Validate() error {
 	if i.Zipcode == "" || len(i.Zipcode) != 8 {
-		return errors.New("invalid zipcode")
+		return &customerrors.ValidationError{
+			Err:     errors.New("invalid zipcode"),
+			Message: "invalid zipcode",
+			Reasons: []string{"zipcode must have 8 characters"},
+		}
 	}
+
 	return nil
 }

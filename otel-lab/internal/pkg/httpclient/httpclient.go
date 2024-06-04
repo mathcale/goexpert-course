@@ -53,6 +53,13 @@ func (c HttpClient) Get(ctx context.Context, endpoint string, responseObj interf
 		return errResp
 	}
 
+	if resp.StatusCode == http.StatusNotFound {
+		return &HttpClientError{
+			Error:      fmt.Errorf("not found"),
+			StatusCode: &resp.StatusCode,
+		}
+	}
+
 	defer resp.Body.Close()
 
 	if err := json.NewDecoder(resp.Body).Decode(&responseObj); err != nil {
