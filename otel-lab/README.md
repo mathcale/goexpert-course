@@ -17,6 +17,8 @@ Instrumentação de serviços com OpenTelemetry e Zipkin
 2. Faça uma requisição POST para `http://localhost:8000` com o body descrito na seção "Documentação dos endpoints" abaixo para invocar o serviço de temperatura;
 3. Em seu navegador, acesse `http://localhost:9411` para visualizar o dashboard do Zipkin e verificar os traces gerados na aba "Find a trace".
 
+**Obs:** caso esteja executando a aplicação após uma atualização do repositório, lembre-se de passar a flag `--build` para o `docker compose`, fazendo assim com que o Docker recrie os containers com código atual.
+
 ### Via Go
 
 1. Execute `docker compose up -d collector zipkin` para iniciar o serviço de coleta de traces e o Zipkin;
